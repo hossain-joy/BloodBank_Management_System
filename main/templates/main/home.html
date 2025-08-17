@@ -1,0 +1,107 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        padding: 6rem 0;
+        background: linear-gradient(rgba(0, 48, 73, 0.7), rgba(0, 48, 73, 0.7)), url("{% static 'img/hero-bg.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        border-radius: 20px;
+        color: #fff;
+    }
+    .hero-section .display-3 {
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .hero-section .lead {
+        font-weight: 400;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .role-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+        overflow: hidden;
+        background: #fff;
+        border-top: 4px solid transparent;
+    }
+    
+    .role-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--card-shadow-hover);
+    }
+
+    .role-card.admin { border-top-color: #D62828; }
+    .role-card.donor { border-top-color: #0077B6; }
+    .role-card.requester { border-top-color: #57A773; }
+
+    .role-card .card-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .role-card:hover .card-icon {
+        transform: scale(1.1);
+    }
+
+    .role-card .card-title {
+        font-weight: 600;
+    }
+    
+    .role-card p {
+        color: var(--light-gray);
+    }
+
+    .btn-donor { background-color: #0077B6; border-color: #0077B6; color: #fff; }
+    .btn-donor:hover { background-color: #fff; color: #0077B6; }
+
+    .btn-requester { background-color: #57A773; border-color: #57A773; color: #fff; }
+    .btn-requester:hover { background-color: #fff; color: #57A773; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section text-center p-5 mb-5">
+        <h1 class="display-3 mb-3">Your Drop of Blood Can Save a Life</h1>
+        <p class="lead fs-4 mb-4">Join our community of heroes. Whether you're here to donate or request, you're part of something bigger.</p>
+    </div>
+
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Choose Your Path</h2>
+        <p class="text-muted">How would you like to contribute today?</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        
+        <div class="col-lg-4 col-md-6">
+            <div class="card role-card donor text-center p-4 h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="card-icon" style="color: #0077B6;"><i class="bi bi-heart-pulse"></i></div>
+                    <h4 class="card-title">Donor</h4>
+                    <p class="flex-grow-1">Become a registered donor or manage your donation history and profile.</p>
+                    <a href="{% url 'login' role='donor' %}" class="btn btn-donor mt-auto">Donor Portal</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6">
+            <div class="card role-card requester text-center p-4 h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="card-icon" style="color: #57A773;"><i class="bi bi-clipboard2-plus"></i></div>
+                    <h4 class="card-title">Requester</h4>
+                    <p class="flex-grow-1">Create new blood requests or track the status of your existing requests.</p>
+                    <a href="{% url 'login' role='requester' %}" class="btn btn-requester mt-auto">Requester Portal</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

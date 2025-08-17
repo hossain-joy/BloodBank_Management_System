@@ -1,0 +1,699 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Dashboard Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pt-3">
+        <div class="mb-3 mb-md-0">
+            <h1 class="h2 fw-semibold text-dark mb-2">
+                <i class="bi bi-speedometer2 text-primary me-2"></i>Blood Bank Administration
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'add_donor' %}" class="btn btn-primary px-4">
+                <i class="bi bi-person-plus me-2"></i>Add Donor
+            </a>
+            <a href="{% url 'add_requester' %}" class="btn btn-success px-4">
+                <i class="bi bi-plus-circle me-2"></i>New Request
+            </a>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Total Donors</h6>
+                            <h3 class="mb-0 fw-bold">{{ total_donors }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-people-fill text-primary fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success bg-opacity-10 text-success small">
+                            <i class="bi bi-arrow-up-short"></i> 12.5% from last month
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Active Requests</h6>
+                            <h3 class="mb-0 fw-bold">{{ total_requests }}</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-droplet-half text-success fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-danger bg-opacity-10 text-danger small">
+                            <i class="bi bi-arrow-down-short"></i> 3.2% from last week
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Successful Matches</h6>
+                            <h3 class="mb-0 fw-bold">42</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-heart-pulse text-info fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success bg-opacity-10 text-success small">
+                            <i class="bi bi-arrow-up-short"></i> 8.7% from last month
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-uppercase text-muted small mb-2">Urgent Needs</h6>
+                            <h3 class="mb-0 fw-bold">8</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="#urgent-requests" class="small text-decoration-none">View critical requests →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Visualization Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart-line text-primary me-2"></i>Blood Group Distribution</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-funnel me-1"></i>Filter
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">All Donors</a></li>
+                                <li><a class="dropdown-item" href="#">Active Only</a></li>
+                                <li><a class="dropdown-item" href="#">By Location</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <canvas id="bloodGroupChart" height="250"></canvas>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Blood Type</th>
+                                            <th class="text-end">Donors</th>
+                                            <th class="text-end">%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in blood_group_counts %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary bg-opacity-10 text-primary">{{ item.blood_group }}</span>
+                                            </td>
+                                            <td class="text-end">{{ item.count }}</td>
+                                            <td class="text-end">{{ item.percentage }}%</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0"><i class="bi bi-activity text-primary me-2"></i>System Activity</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item border-0 py-3">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar bg-success bg-opacity-10 text-success rounded-circle p-2 me-3">
+                                        <i class="bi bi-person-plus fs-5"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">New Donor Registered</h6>
+                                        <small class="text-muted">2h ago</small>
+                                    </div>
+                                    <p class="small text-muted mb-0">John Smith (O+) from New York</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-0 py-3">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar bg-danger bg-opacity-10 text-danger rounded-circle p-2 me-3">
+                                        <i class="bi bi-droplet fs-5"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">Blood Request Created</h6>
+                                        <small class="text-muted">5h ago</small>
+                                    </div>
+                                    <p class="small text-muted mb-0">Jane Doe needs B+ blood in Chicago</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-0 py-3">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar bg-info bg-opacity-10 text-info rounded-circle p-2 me-3">
+                                        <i class="bi bi-heart fs-5"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">Donor Match Found</h6>
+                                        <small class="text-muted">Yesterday</small>
+                                    </div>
+                                    <p class="small text-muted mb-0">For request #4582 (A-)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-0 py-3">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar bg-warning bg-opacity-10 text-warning rounded-circle p-2 me-3">
+                                        <i class="bi bi-check-circle fs-5"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">Request Completed</h6>
+                                        <small class="text-muted">2 days ago</small>
+                                    </div>
+                                    <p class="small text-muted mb-0">Request #4581 (AB+) fulfilled</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Tabs -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 p-0">
+            <ul class="nav nav-tabs nav-fill border-bottom" id="managementTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active py-3" id="donors-tab" data-bs-toggle="tab" data-bs-target="#donors" type="button" role="tab">
+                        <i class="bi bi-people-fill me-2"></i>Donor Management
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-3" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab">
+                        <i class="bi bi-droplet-fill me-2"></i>Request Management
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-3" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab">
+                        <i class="bi bi-clipboard2-pulse-fill me-2"></i>Blood Inventory
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="managementTabsContent">
+                <!-- Donors Tab -->
+                <div class="tab-pane fade show active" id="donors" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex gap-2">
+                            <div class="input-group input-group-sm" style="width: 250px;">
+                                <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search donors...">
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-funnel me-1"></i>Filter
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">All Donors</a></li>
+                                    <li><a class="dropdown-item" href="#">Active Only</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    {% for blood_group in blood_groups %}
+                                    <li><a class="dropdown-item" href="#">{{ blood_group }} Group</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-download me-1"></i>Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Donor</th>
+                                <th>Blood Type</th>
+                                <th>Last Donation</th>
+                                <th>Eligibility</th>
+                                <th>Request Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donor in donors %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ donor.name }}</h6>
+                                                <small class="text-muted">{{ donor.phone }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-1">
+                                            {{ donor.blood_group }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{ donor.last_donation|date:"M d, Y"|default:"Never" }}
+                                        {% if donor.last_donation %}
+                                        <div class="small text-muted">{{ donor.last_donation|timesince }} ago</div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill">
+                                            <i class="bi bi-check-circle me-1"></i>Eligible
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                                <li>
+                                                    <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#donorDetailsModal">
+                                                        <i class="bi bi-eye-fill me-2"></i>View Details
+                                                    </button>
+                                                </li>
+                                                <li><a class="dropdown-item" href="{% url 'edit_donor' donor.pk %}"><i class="bi bi-pencil-square me-2"></i>Edit</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="{% url 'delete_donor' donor.pk %}"><i class="bi bi-trash-fill me-2"></i>Delete</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <nav aria-label="Donor pagination">
+                        <ul class="pagination justify-content-end mt-3">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                
+                <!-- Requests Tab -->
+                <div class="tab-pane fade" id="requests" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex gap-2">
+                            <div class="input-group input-group-sm" style="width: 250px;">
+                                <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search requests...">
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-funnel me-1"></i>Filter
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">All Requests</a></li>
+                                    <li><a class="dropdown-item" href="#">Urgent Only</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Pending</a></li>
+                                    <li><a class="dropdown-item" href="#">Fulfilled</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-download me-1"></i>Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Patient</th>
+                                    <th>Blood Type</th>
+                                    <th>Needed By</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for requester in requesters %}
+                                <tr>
+                                    <td>#{{ requester.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-success bg-opacity-10 text-success rounded-circle p-2 me-3">
+                                                <i class="bi bi-clipboard2-pulse-fill"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ requester.name }}</h6>
+                                                <small class="text-muted">{{ requester.location }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-1">
+                                            {{ requester.blood_group }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{ requester.date_needed|date:"M d, Y" }}
+                                        <div class="small text-muted">{{ requester.date_needed|timeuntil }} left</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if requester.status == 'urgent' %}danger{% else %}warning{% endif %} bg-opacity-10 text-{% if requester.status == 'urgent' %}danger{% else %}warning{% endif %} rounded-pill">
+                                            {{ requester.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                                <li>
+                                                    <a class="dropdown-item fw-medium text-primary" href="{% url 'find_donors' requester.pk %}">
+                                                        <i class="bi bi-person-lines-fill me-2"></i>Find Donors
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#requestDetailsModal">
+                                                        <i class="bi bi-eye-fill me-2"></i>View Details
+                                                    </button>
+                                                </li>
+                                                <li><a class="dropdown-item" href="{% url 'edit_requester' requester.pk %}"><i class="bi bi-pencil-square me-2"></i>Edit</a></li>
+                                                <li><a class="dropdown-item text-danger" href="{% url 'delete_requester' requester.pk %}"><i class="bi bi-trash-fill me-2"></i>Delete</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <nav aria-label="Request pagination">
+                        <ul class="pagination justify-content-end mt-3">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                
+                <!-- Inventory Tab -->
+                <div class="tab-pane fade" id="inventory" role="tabpanel">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-clipboard2-pulse text-muted" style="font-size: 3.5rem;"></i>
+                        </div>
+                        <h4 class="h5 mb-3">Blood Inventory Management</h4>
+                        <p class="text-muted mb-4">Track and manage blood stock levels across all locations</p>
+                        <button class="btn btn-primary px-4" disabled>
+                            <i class="bi bi-plus-circle me-2"></i>Coming Soon
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Donor Details Modal -->
+<div class="modal fade" id="donorDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Donor Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Modal content would be dynamically loaded here -->
+                <p>Donor details would appear here when viewing a specific donor.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Edit Donor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request Details Modal -->
+<div class="modal fade" id="requestDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Modal content would be dynamically loaded here -->
+                <p>Request details would appear here when viewing a specific request.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Find Donors</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .nav-tabs {
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #6c757d;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        color: #0d6efd;
+        border-bottom-color: rgba(13, 110, 253, 0.2);
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        border-bottom-color: #0d6efd;
+        background: transparent;
+    }
+    
+    .avatar {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .table thead th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        border-top: none;
+    }
+    
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+    }
+    
+    .dropdown-item {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+    }
+    
+    .breadcrumb {
+        font-size: 0.875rem;
+    }
+    
+    .input-group-text {
+        background-color: transparent;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize Blood Group Chart
+    const ctx = document.getElementById('bloodGroupChart').getContext('2d');
+    const bloodGroupChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['O+', 'A+', 'B+', 'AB+', 'O-', 'A-', 'B-', 'AB-'],
+            datasets: [{
+                data: [35, 25, 15, 5, 8, 5, 4, 3],
+                backgroundColor: [
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(253, 126, 20, 0.8)',
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(32, 201, 151, 0.8)',
+                    'rgba(102, 16, 242, 0.8)',
+                    'rgba(13, 202, 240, 0.8)',
+                    'rgba(25, 135, 84, 0.8)',
+                    'rgba(111, 66, 193, 0.8)'
+                ],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#212529',
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 12,
+                    usePointStyle: true,
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw} donors (${Math.round(context.parsed)}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+    
+    // Tab functionality
+    const tabElms = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabElms.forEach(tabElm => {
+        tabElm.addEventListener('click', function (event) {
+            event.preventDefault();
+            const tab = new bootstrap.Tab(this);
+            tab.show();
+        });
+    });
+    
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+</script>
+{% endblock %}

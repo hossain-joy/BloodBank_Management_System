@@ -1,0 +1,31 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Find Donors for {{ requester.name }} ({{ requester.blood_group }})</h2>
+    <hr>
+    
+    {% if donors %}
+        <p>The following donors match the requested blood group:</p>
+        <ul class="list-group">
+            {% for donor in donors %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ donor.name }} - {{ donor.phone }}
+                    <div>
+                        <a href="{% url 'send_request_to_donor' donor.id requester.id %}" class="btn btn-primary btn-sm">Request Donation</a>
+                        <a href="{% url 'send_donor_details_to_requester' requester.id donor.id %}" class="btn btn-info btn-sm">Send Details to Requester</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            No donors found with the blood group: <strong>{{ requester.blood_group }}</strong>.
+        </div>
+    {% endif %}
+
+    <div class="mt-3">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

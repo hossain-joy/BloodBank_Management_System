@@ -1,0 +1,125 @@
+{% extends 'main/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {% if form.instance.pk %}Edit Request{% else %}Add Request{% endif %}
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success bg-gradient text-white p-4">
+                    <h3 class="mb-0">
+                        {% if form.instance.pk %}
+                            <i class="bi bi-pencil-square me-2"></i>Edit Blood Request
+                        {% else %}
+                            <i class="bi bi-journal-plus me-2"></i>Create New Blood Request
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Requester's Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                    {% render_field form.name class="form-control" %}
+                                </div>
+                                {% for error in form.name.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">Contact Phone</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+                                    {% render_field form.phone class="form-control" %}
+                                </div>
+                                {% for error in form.phone.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.blood_group.id_for_label }}" class="form-label">Required Blood Group</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-droplet-fill"></i></span>
+                                    {% render_field form.blood_group class="form-select" %}
+                                </div>
+                                {% for error in form.blood_group.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+
+                             <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_needed.id_for_label }}" class="form-label">Date Needed</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar-event-fill"></i></span>
+                                    {% render_field form.date_needed class="form-control" %}
+                                </div>
+                                {% for error in form.date_needed.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.location.id_for_label }}" class="form-label">Location (Hospital Name)</label>
+                                <div class="input-group">
+                                     <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
+                                     {% render_field form.location class="form-control" %}
+                                </div>
+                                {% for error in form.location.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.message.id_for_label }}" class="form-label">Message / Reason</label>
+                                <div class="input-group">
+                                     <span class="input-group-text"><i class="bi bi-chat-left-text-fill"></i></span>
+                                     {% render_field form.message class="form-control" %}
+                                </div>
+                                {% for error in form.message.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-danger mt-3">{{ error }}</div>
+                        {% endfor %}
+                        
+                        <div class="card-footer bg-transparent text-end border-0 pt-4 px-0">
+                           <p class="small text-muted float-start mt-2">Requests are subject to verification.</p>
+                           <a href="{% url 'dashboard' %}" class="btn btn-secondary me-2">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                           </a>
+                           <button type="submit" class="btn btn-success btn-lg">
+                                {% if form.instance.pk %}
+                                    <i class="bi bi-check-circle-fill me-2"></i>Update Request
+                                {% else %}
+                                    <i class="bi bi-send-check-fill me-2"></i>Submit Request
+                                {% endif %}
+                           </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // This script ensures that users cannot select a past date for the request.
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split('T')[0];
+        const dateField = document.querySelector('[name="date_needed"]');
+        
+        if (dateField) {
+            dateField.setAttribute('min', today);
+        }
+    });
+</script>
+{% endblock %}

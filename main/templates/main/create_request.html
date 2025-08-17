@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="bi bi-journal-plus me-2"></i>Create a New Blood Request</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="text-end mt-3">
+                            <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

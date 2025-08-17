@@ -1,0 +1,98 @@
+{% extends 'main/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {{ role|capfirst }} Registration
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-lg border-0">
+                <div class="card-header 
+                    {% if role == 'donor' %}bg-primary{% else %}bg-success{% endif %} 
+                    bg-gradient text-white p-4">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-plus-fill me-2"></i>
+                        Register as a New {{ role|capfirst }}
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="{% url 'register' role=role %}" novalidate>
+                        {% csrf_token %}
+
+                        <fieldset class="mb-4">
+                            <legend class="h5 border-bottom pb-2 mb-3">Account Details</legend>
+                            <div class="row">
+                                {% for field in user_form %}
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            {% if field.name == 'username' %}<i class="bi bi-person-badge-fill"></i>{% endif %}
+                                            {% if field.name == 'email' %}<i class="bi bi-envelope-fill"></i>{% endif %}
+                                            {% if field.name == 'password' %}<i class="bi bi-lock-fill"></i>{% endif %}
+                                        </span>
+                                        {% render_field field class="form-control" %}
+                                    </div>
+                                    {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend class="h5 border-bottom pb-2 mb-3">Profile Details</legend>
+                            <div class="row">
+                                {% for field in profile_form %}
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            {% if field.name == 'name' %}<i class="bi bi-person-fill"></i>{% endif %}
+                                            {% if field.name == 'age' %}<i class="bi bi-calendar-event"></i>{% endif %}
+                                            {% if field.name == 'blood_group' %}<i class="bi bi-droplet-fill"></i>{% endif %}
+                                            {% if field.name == 'phone' %}<i class="bi bi-telephone-fill"></i>{% endif %}
+                                            {% if field.name == 'address' or field.name == 'location' %}<i class="bi bi-geo-alt-fill"></i>{% endif %}
+                                            {% if field.name == 'reason' %}<i class="bi bi-chat-left-text-fill"></i>{% endif %}
+                                        </span>
+                                        
+                                        {% if field.name == 'blood_group' %}
+                                            {% render_field field class="form-select" %}
+                                        {% else %}
+                                            {% render_field field class="form-control" %}
+                                        {% endif %}
+                                    </div>
+                                    {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+                        
+                        <div class="d-flex justify-content-end align-items-center mt-4">
+                            <a href="{% url 'home' %}" class="btn btn-secondary me-3">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn {% if role == 'donor' %}btn-primary{% else %}btn-success{% endif %} btn-lg">
+                                <i class="bi bi-check-circle-fill me-2"></i>Register
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                     <p class="text-muted mb-0">
+                        Already have an account? <a href="{% url 'login' role=role %}">Login as a {{ role|capfirst }}</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

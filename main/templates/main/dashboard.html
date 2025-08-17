@@ -1,0 +1,285 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0"><i class="bi bi-speedometer2 text-danger me-2"></i>Dashboard</h1>
+        <div class="d-flex gap-2 flex-wrap">
+            <div class="btn-group">
+                <a href="{% url 'add_donor' %}" class="btn btn-danger"><i class="bi bi-person-plus-fill me-2"></i>Add Donor</a>
+                <a href="{% url 'add_requester' %}" class="btn btn-success"><i class="bi bi-journal-plus me-2"></i>Add Request</a>
+            </div>
+            <div class="btn-group">
+                   <a href="{% url 'logout' %}" class="btn btn-dark"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                        <i class="bi bi-people-fill h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-subtitle text-muted">Total Donors</h6>
+                        <h2 class="card-title mb-0">{{ total_donors }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                        <i class="bi bi-droplet-half h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-subtitle text-muted">Active Requests</h6>
+                        <h2 class="card-title mb-0">{{ total_requests }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted mb-2">Donor Blood Groups</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for item in blood_group_counts %}
+                            <span class="badge fs-6 text-bg-secondary rounded-pill">{{ item.blood_group }}: {{ item.count }}</span>
+                        {% empty %}
+                            <p class="text-muted small mb-0">No donor data available.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header p-0 border-bottom-0">
+            <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active p-3" id="donors-tab" data-bs-toggle="tab" data-bs-target="#donors-tab-pane" type="button" role="tab" aria-controls="donors-tab-pane" aria-selected="true">
+                        <i class="bi bi-people-fill me-2"></i>Donor Management
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link p-3" id="requesters-tab" data-bs-toggle="tab" data-bs-target="#requesters-tab-pane" type="button" role="tab" aria-controls="requesters-tab-pane" aria-selected="false">
+                        <i class="bi bi-droplet-fill me-2"></i>Request Management
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="donors-tab-pane" role="tabpanel" aria-labelledby="donors-tab" tabindex="0">
+                    <div class="table-responsive">
+                        <table id="donorsTable" class="table table-striped table-hover align-middle" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Blood Group</th>
+                                    <th>Phone</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for donor in donors %}
+                                <tr>
+                                    <td>{{ donor.name }}</td>
+                                    <td><span class="badge bg-danger-subtle text-danger-emphasis rounded-pill">{{ donor.blood_group }}</span></td>
+                                    <td>{{ donor.phone }}</td>
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#detailsModal" 
+                                                        data-name="{{ donor.name }}" 
+                                                        data-age="{{ donor.age }}"
+                                                        data-blood-group="{{ donor.blood_group }}"
+                                                        data-phone="{{ donor.phone }}"
+                                                        data-address="{{ donor.address }}"
+                                                        data-type="Donor">
+                                                        <i class="bi bi-eye-fill me-2"></i>View Details
+                                                    </button>
+                                                </li>
+                                                <li><a class="dropdown-item" href="{% url 'edit_donor' donor.pk %}"><i class="bi bi-pencil-square me-2"></i>Edit</a></li>
+                                                <li><a class="dropdown-item text-danger" href="{% url 'delete_donor' donor.pk %}"><i class="bi bi-trash-fill me-2"></i>Delete</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="requesters-tab-pane" role="tabpanel" aria-labelledby="requesters-tab" tabindex="0">
+                    <div class="table-responsive">
+                        <table id="requestersTable" class="table table-striped table-hover align-middle" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Blood Group</th>
+                                    <th>Date Needed</th>
+                                    <th>Location</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for requester in requesters %}
+                                <tr>
+                                    <td>{{ requester.name }}</td>
+                                    <td><span class="badge bg-success-subtle text-success-emphasis rounded-pill">{{ requester.blood_group }}</span></td>
+                                    <td>{{ requester.date_needed|date:"d M, Y" }}</td>
+                                    <td>{{ requester.location }}</td>
+                                    <td class="text-center">
+                                               <div class="dropdown">
+                                                   <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                       <i class="bi bi-three-dots-vertical"></i>
+                                                   </button>
+                                                   <ul class="dropdown-menu dropdown-menu-end">
+                                                       <li><a class="dropdown-item fw-bold" href="{% url 'find_donors' requester.pk %}"><i class="bi bi-person-lines-fill me-2"></i>Find Donors</a></li>
+                                                       <li><hr class="dropdown-divider"></li>
+                                                       <li>
+                                                                <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#detailsModal" 
+                                                                    data-name="{{ requester.name }}" 
+                                                                    data-phone="{{ requester.phone }}"
+                                                                    data-blood-group="{{ requester.blood_group }}"
+                                                                    data-date-needed="{{ requester.date_needed|date:'d M, Y' }}"
+                                                                    data-location="{{ requester.location }}"
+                                                                    data-message="{{ requester.message }}"
+                                                                    data-type="Requester">
+                                                                    <i class="bi bi-eye-fill me-2"></i>View Details
+                                                                </button>
+                                                       </li>
+                                                       <li><a class="dropdown-item" href="{% url 'edit_requester' requester.pk %}"><i class="bi bi-pencil-square me-2"></i>Edit</a></li>
+                                                       <li><a class="dropdown-item text-danger" href="{% url 'delete_requester' requester.pk %}"><i class="bi bi-trash-fill me-2"></i>Delete</a></li>
+                                                   </ul>
+                                               </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailsModalLabel">Record Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h4 id="modal-name"></h4>
+        <p><strong id="modal-type-badge" class="badge"></strong></p>
+        <hr>
+        <div id="modal-details-content">
+            </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+---
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<style>
+  .table-responsive.overflow-visible {
+    overflow: visible !important;
+  }
+</style>
+{% endblock %}
+
+---
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTables
+    $('#donorsTable').DataTable({
+        "pageLength": 10,
+        "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ]
+    });
+    $('#requestersTable').DataTable({
+        "pageLength": 10,
+        "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ]
+    });
+
+    // Handle modal data population
+    const detailsModal = document.getElementById('detailsModal');
+    detailsModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+        const recordType = button.getAttribute('data-type');
+        
+        const name = button.getAttribute('data-name');
+        document.getElementById('modal-name').textContent = name;
+
+        const typeBadge = document.getElementById('modal-type-badge');
+        typeBadge.textContent = recordType;
+
+        const detailsContent = document.getElementById('modal-details-content');
+        let contentHtml = '';
+
+        if (recordType === 'Donor') {
+            typeBadge.className = 'badge bg-danger';
+            contentHtml = `
+                <p><strong>Blood Group:</strong> ${button.getAttribute('data-blood-group')}</p>
+                <p><strong>Age:</strong> ${button.getAttribute('data-age')}</p>
+                <p><strong>Phone:</strong> ${button.getAttribute('data-phone')}</p>
+                <p><strong>Address:</strong><br>${button.getAttribute('data-address')}</p>
+            `;
+        } else {
+            typeBadge.className = 'badge bg-success';
+            contentHtml = `
+                <p><strong>Blood Group:</strong> ${button.getAttribute('data-blood-group')}</p>
+                <p><strong>Phone:</strong> ${button.getAttribute('data-phone')}</p>
+                <p><strong>Date Needed:</strong> ${button.getAttribute('data-date-needed')}</p>
+                <p><strong>Location:</strong> ${button.getAttribute('data-location')}</p>
+                <p><strong>Message:</strong><br>${button.getAttribute('data-message')}</p>
+            `;
+        }
+        detailsContent.innerHTML = contentHtml;
+    });
+});
+
+// This script fixes the issue where the action dropdown is hidden inside the responsive table.
+document.addEventListener('DOMContentLoaded', function() {
+    const tableContainers = document.querySelectorAll('.table-responsive');
+
+    tableContainers.forEach(container => {
+        const dropdownToggles = container.querySelectorAll('.dropdown-toggle');
+        
+        dropdownToggles.forEach(toggle => {
+            // When a dropdown is shown...
+            toggle.addEventListener('show.bs.dropdown', function () {
+                container.classList.add('overflow-visible');
+            });
+            
+            // When a dropdown is hidden...
+            toggle.addEventListener('hide.bs.dropdown', function () {
+                container.classList.remove('overflow-visible');
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1 text-primary"><i class="bi bi-droplet-fill me-2"></i>Blood Request Dashboard</h1>
+                    <p class="text-muted mb-0">Manage your blood requests and donor notifications</p>
+                </div>
+                <a href="{% url 'create_request' %}" class="btn btn-primary btn-lg px-4 py-2">
+                    <i class="bi bi-plus-circle-fill me-2"></i>Create New Request
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blood Requests Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0 text-primary">
+                            <i class="bi bi-list-check me-2"></i>Your Blood Requests
+                        </h2>
+                        <span class="badge bg-primary-soft text-primary rounded-pill fs-6">{{ requests|length }} active</span>
+                    </div>
+                </div>
+                
+                <div class="card-body pt-0">
+                    {% if requests %}
+                    <div class="row g-4">
+                        {% for request in requests %}
+                        <div class="col-lg-6">
+                            <div class="card border-start border-3 border-primary h-100">
+                                <div class="card-header bg-primary-soft d-flex justify-content-between align-items-center py-3">
+                                    <div>
+                                        <h5 class="mb-0 text-primary">Request for {{ request.blood_group }} blood</h5>
+                                        <small class="text-muted">Created: {{ request.date_requested|date:"M d, Y" }}</small>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a href="{% url 'edit_requester' request.pk %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a href="{% url 'delete_requester' request.pk %}" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <p class="mb-2"><strong><i class="bi bi-person-badge me-2 text-muted"></i>Patient Name:</strong><br>
+                                            <span class="ms-4">{{ request.name }}</span></p>
+                                            
+                                            <p class="mb-2"><strong><i class="bi bi-geo-alt me-2 text-muted"></i>Location:</strong><br>
+                                            <span class="ms-4">{{ request.location }}</span></p>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <p class="mb-2"><strong><i class="bi bi-calendar-event me-2 text-muted"></i>Needed By:</strong><br>
+                                            <span class="ms-4">{{ request.date_needed|date:"M d, Y" }}</span></p>
+                                            
+                                            <p class="mb-2"><strong><i class="bi bi-telephone me-2 text-muted"></i>Contact:</strong><br>
+                                            <span class="ms-4">{{ request.phone }}</span></p>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if request.message %}
+                                    <div class="alert alert-light mt-3 mb-0">
+                                        <strong><i class="bi bi-chat-square-text me-2"></i>Additional Notes:</strong> 
+                                        <p class="mb-0 mt-2">{{ request.message }}</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-2">
+                                    <span class="badge bg-{% if request.status == 'urgent' %}danger-soft text-danger{% else %}warning-soft text-warning{% endif %}">
+                                        {% if request.status == 'urgent' %}<i class="bi bi-exclamation-triangle-fill me-1"></i>{% endif %}
+                                        {{ request.get_status_display }}
+                                    </span>
+                                    <a href="#" class="text-primary small text-decoration-none">
+                                        <i class="bi bi-eye me-1"></i>View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-inbox text-muted" style="font-size: 3.5rem; opacity: 0.5;"></i>
+                        </div>
+                        <h4 class="h5 mb-2 text-muted">No blood requests created</h4>
+                        <p class="text-muted mb-4">You haven't created any blood requests yet</p>
+                        <a href="{% url 'create_request' %}" class="btn btn-primary px-4">
+                            <i class="bi bi-plus-circle-fill me-2"></i>Create Your First Request
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0 text-primary">
+                            <i class="bi bi-bell-fill me-2"></i>Donor Notifications
+                        </h2>
+                        <span class="badge bg-warning-soft text-warning rounded-pill fs-6">{{ notifications|length }} new</span>
+                    </div>
+                </div>
+                
+                <div class="card-body pt-0">
+                    {% if notifications %}
+                    <div class="row g-3">
+                        {% for notification in notifications %}
+                        <div class="col-12">
+                            <div class="card border-start border-3 border-warning mb-3">
+                                <div class="card-header bg-warning-soft d-flex justify-content-between align-items-center py-3">
+                                    <h5 class="mb-0 text-warning">
+                                        <i class="bi bi-heart-pulse-fill me-2"></i>Potential Donor Match
+                                    </h5>
+                                    <small class="text-muted">{{ notification.timestamp|timesince }} ago</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-warning-soft mb-4">
+                                        <p class="mb-0">We've found a matching donor for your request. Please review the details below and contact them to coordinate.</p>
+                                    </div>
+                                    
+                                    <div class="donor-details bg-white p-4 rounded border">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-uppercase text-muted small mb-3">Donor Information</h6>
+                                                <p class="mb-2"><strong>Name:</strong> {{ notification.donor.name }}</p>
+                                                <p class="mb-2"><strong>Blood Type:</strong> 
+                                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill">{{ notification.donor.blood_group }}</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <h6 class="text-uppercase text-muted small mb-3">Contact Details</h6>
+                                                <p class="mb-2"><strong>Phone:</strong> {{ notification.donor.phone }}</p>
+                                                <p class="mb-0"><strong>Location:</strong> {{ notification.donor.location }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-top text-end py-3">
+                                    <button class="btn btn-sm btn-success me-2">
+                                        <i class="bi bi-telephone-outbound me-1"></i>Contact Donor
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-check-circle me-1"></i>Mark as Read
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-bell-slash text-muted" style="font-size: 3.5rem; opacity: 0.5;"></i>
+                        </div>
+                        <h4 class="h5 mb-2 text-muted">No new notifications</h4>
+                        <p class="text-muted mb-0">You'll be notified here when potential donors become available</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<style>
+    .bg-primary-soft {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    
+    .bg-warning-soft {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    .bg-danger-soft {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    .donor-details {
+        border-left: 3px solid #fd7e14;
+    }
+    
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>

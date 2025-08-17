@@ -1,0 +1,61 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="bi bi-search me-2"></i>Search Donors by Blood Group</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="get" class="row g-3 align-items-center">
+                    <div class="col-md-9">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-droplet"></i></span>
+                            <input type="text" name="q" placeholder="Enter blood group (e.g., A+, O-)" class="form-control form-control-lg" value="{{ query }}" required />
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-grid">
+                        <button type="submit" class="btn btn-info text-white btn-lg"><i class="bi bi-search me-2"></i>Search</button>
+                    </div>
+                </form>
+
+                {% if query %}
+                <hr class="my-4">
+                <h5 class="mb-3">Search Results for "<span class="text-info">{{ query }}</span>":</h5>
+                {% if donors %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Blood Group</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donor in donors %}
+                            <tr>
+                                <td>{{ donor.name }}</td>
+                                <td>{{ donor.age }}</td>
+                                <td><span class="badge bg-info-subtle text-info-emphasis rounded-pill">{{ donor.blood_group }}</span></td>
+                                <td>{{ donor.phone }}</td>
+                                <td>{{ donor.address }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-warning mt-3 text-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>No donors found matching your query.
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
