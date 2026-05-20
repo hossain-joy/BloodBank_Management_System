@@ -95,6 +95,37 @@ A Django-based web application for managing blood donors, requesters, and donati
 | `/search/` | Admin searches donors by blood group |
 | `/requester/<id>/find-donors/` | Admin finds matching donors for a requester |
 
+## Deploying to Vercel
+
+> Vercel is a serverless platform — you need a **remote MySQL database** (e.g. [PlanetScale](https://planetscale.com), [Aiven](https://aiven.io), or [Railway](https://railway.app)) since Vercel cannot connect to `localhost`.
+
+1. **Push your code to GitHub**
+
+2. **Import the project on [vercel.com](https://vercel.com)**
+
+3. **Set environment variables** in the Vercel dashboard (Settings → Environment Variables) using `.env.example` as a reference:
+
+   | Variable | Description |
+   |---|---|
+   | `SECRET_KEY` | Django secret key |
+   | `DEBUG` | Set to `False` |
+   | `ALLOWED_HOSTS` | e.g. `.vercel.app` |
+   | `DB_NAME` | Remote MySQL database name |
+   | `DB_USER` | Database user |
+   | `DB_PASSWORD` | Database password |
+   | `DB_HOST` | Remote MySQL host |
+   | `DB_PORT` | `3306` |
+   | `EMAIL_HOST_USER` | SMTP email address |
+   | `EMAIL_HOST_PASSWORD` | SMTP password / app password |
+
+4. **Run migrations** once after first deploy (from your local machine pointing at the remote DB):
+   ```bash
+   python manage.py migrate
+   python manage.py createsuperuser
+   ```
+
+5. Vercel will automatically run `build_files.sh` to install dependencies and collect static files on each deploy.
+
 ## Email Notifications
 
 Email is used to notify donors of requests and requesters of donor details. Configure your email backend in `settings.py`:
