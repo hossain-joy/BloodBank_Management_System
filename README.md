@@ -126,6 +126,27 @@ A Django-based web application for managing blood donors, requesters, and donati
 
 5. Vercel will automatically run `build_files.sh` to install dependencies and collect static files on each deploy.
 
+## Deploying with Docker (Railway / Render / Cloud Run)
+
+> **Note:** Vercel does **not** support Docker containers directly. If you want to deploy using Docker, use container-native platforms such as [Railway](https://railway.app), [Render](https://render.com), or [Google Cloud Run](https://cloud.google.com/run).
+
+### Local Docker Run (Django + MySQL)
+
+Run the entire application along with a dedicated MySQL 8 container:
+
+```bash
+docker compose up --build
+```
+The app will be available at `http://localhost:8000`.
+
+### Deploying to Railway / Render
+
+1. Push your repository to GitHub.
+2. In **Railway** or **Render**, create a **New Web Service** and select this GitHub repository.
+3. The platform will automatically detect the `Dockerfile`.
+4. Add a managed **MySQL** service on the same project and configure your environment variables (`DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `SECRET_KEY`, `ALLOWED_HOSTS`).
+5. Your service will build and go live with migrations and static files handled automatically.
+
 ## Email Notifications
 
 Email is used to notify donors of requests and requesters of donor details. Configure your email backend in `settings.py`:

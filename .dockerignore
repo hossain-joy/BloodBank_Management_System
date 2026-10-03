@@ -1,0 +1,15 @@
+.git
+.gitignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pipenv/
+.env
+.venv
+db.sqlite3
+staticfiles/
+.vercel
